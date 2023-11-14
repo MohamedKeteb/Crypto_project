@@ -5,6 +5,7 @@ import pandas as pd
 import requests 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from sklearn.preprocessing import MinMaxScaler
 import ta
 
 
@@ -22,6 +23,8 @@ def load_data(symbol, start_date, end_date, interval):
         data[col] = pd.to_numeric(data[col], errors = 'coerce')
     
     return data
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 def visualize_data(data, symbol, interval):
@@ -52,7 +55,7 @@ def visualize_data(data, symbol, interval):
        
     plt.show()
 
-
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def finance_visualize(data, symbol, interval):
     ''' 
@@ -89,6 +92,8 @@ def finance_visualize(data, symbol, interval):
 
 
     fig.show()
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 def visualize_with_indicator(data, symbol, interval, indicator):
@@ -140,11 +145,10 @@ def visualize_with_indicator(data, symbol, interval, indicator):
     fig.show()
 
 
-
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def add_indicators(data, period=14):
 
-    
     ema = ta.trend.ema_indicator(close = data['close'], window = period).dropna()
     rsi = ta.momentum.rsi(close=data['close'], window=period).dropna()
     atr = ta.volatility.AverageTrueRange(close=data['close'],high=data['high'], low=data['low'], window=period).average_true_range()
@@ -158,5 +162,18 @@ def add_indicators(data, period=14):
 
 
     return data.reset_index().drop('index', axis=1)
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+def scaling_data(data):
+
+    m = data.drop('datetime', axis =1)
+    scaler =MinMaxScaler(feature_range=(0, 1))
+    scaled_data = pd.DataFrame(scaler.fit_transform(m), columns= data.columns[1:])
+    scaled_data.insert(0, 'datetime', data['datetime'])
+    
+    return scaled_data
+
 
 
