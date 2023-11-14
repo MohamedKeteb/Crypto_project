@@ -53,7 +53,7 @@ def visualize_data(data, symbol, interval):
 
 
 
-def finance_visualize(data, symbol, interva):
+def finance_visualize(data, symbol, interval):
     ''' 
     Aim : Visualize the candle of the market of the considered Cryptocurrencie
     on the considered interval
@@ -88,5 +88,6 @@ def finance_visualize(data, symbol, interva):
 
 
     fig.show()
+
 
 
