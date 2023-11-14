@@ -8,7 +8,11 @@ from ta.momentum import *
 
 
 
-def load_data(symbol, start_data, end_data, interval, api_url):
+def load_data(symbol, start_date, end_date, interval):
+
+    api_key = 'de6ee984b4c24a0c9c7a43d7dca8b75e' # The Api key of Twelvedata.com (800 requests per day)
+    order = 'asc'
+    api_url = f'https://api.twelvedata.com/time_series?symbol={symbol}&start_date={start_date}&end_date={end_date}&interval={interval}&order={order}&apikey={api_key}'
     
     data = requests.get(api_url).json() # API request to have the data in a json datatyped
     data = pd.DataFrame(data['values'])
