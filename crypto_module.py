@@ -51,6 +51,8 @@ def visualize_data(data, symbol, interval):
        
     plt.show()
 
+
+
 def finance_visualize(data, symbol, interva):
     ''' 
     Aim : Visualize the candle of the market of the considered Cryptocurrencie
