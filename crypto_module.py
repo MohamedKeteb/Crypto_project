@@ -115,7 +115,6 @@ def visualize_with_indicator(data, symbol, interval, indicator):
 
     '''
     
-    indicator = 'EMA'
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=['Candles', 'RSI'])
     candle = go.Candlestick(x=data['datetime'],
                                         open=data['open'],
