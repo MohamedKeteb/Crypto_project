@@ -1,11 +1,10 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
-import pandas as pd 
 import seaborn as sns
+import pandas as pd 
 import requests 
 import plotly.graph_objects as go
 from ta.momentum import *
-
 
 
 def load_data(symbol, start_date, end_date, interval):
@@ -22,9 +21,6 @@ def load_data(symbol, start_date, end_date, interval):
         data[col] = pd.to_numeric(data[col], errors = 'coerce')
     
     return data
-
-
-
 
 
 def visualize_data(data, symbol, interval):
@@ -92,6 +88,4 @@ def finance_visualize(data, symbol, interval):
 
 
     fig.show()
-
-
 
