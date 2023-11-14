@@ -4,7 +4,7 @@ import seaborn as sns
 import pandas as pd 
 import requests 
 import plotly.graph_objects as go
-from ta.momentum import *
+import ta
 
 
 def load_data(symbol, start_date, end_date, interval):
@@ -88,4 +88,64 @@ def finance_visualize(data, symbol, interval):
 
 
     fig.show()
+
+
+def finance_visualize(data, symbol, interval, indicator):
+    ''' 
+    Aim : Visualize the candle of the market of the considered Cryptocurrencie
+    on the considered interval
+    
+    Input : 
+    - data :
+        type: pandas DataFrame 
+                
+    - symbol :
+        type: string
+        for instance 'BTC/USD'
+        
+    - interval : 
+        type: string
+        for instance '1day' or '5min'
+        
+    Output : Plot
+
+    '''
+    
+    fig = go.Figure(data=[go.Candlestick(x=data['datetime'],
+                                     open=data['open'],
+                                     high=data['high'],
+                                     low=data['low'],
+                                     close=data['close'])])
+    
+    fig.add_trace(go.Scatter(x=data.index, y=data[str(indicator)], mode='lines', name=str(indicator), yaxis='y2'))
+
+    
+    fig.update_layout(title='Cotation of ' + str(symbol) + ' per ' + str(interval) ,
+                  xaxis_title='Date',
+                  yaxis_title='Price in USD',
+                  xaxis_rangeslider_visible=False)
+
+
+
+    fig.show()
+
+
+
+def add_indicators(data, period=14):
+
+    
+    ema = ta.trend.ema_indicator(close = data['close'], window = period).dropna()
+    rsi = ta.momentum.rsi(close=data['close'], window=period).dropna()
+    atr = ta.volatility.AverageTrueRange(close=data['close'],high=data['high'], low=data['low'], window=period).average_true_range()
+    atr = atr[atr>0]
+
+    data = pd.DataFrame(data.loc[period-1:])
+
+    data['RSI'] = rsi
+    data['EMA'] = ema
+    data['ATR'] = atr
+
+
+    return data.reset_index().drop('index', axis=1)
+
 
