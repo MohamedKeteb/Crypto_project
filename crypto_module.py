@@ -90,6 +90,7 @@ def finance_visualize(data, symbol, interval):
     fig.show()
 
 
+<<<<<<< HEAD
 def finance_visualize(data, symbol, interval, indicator):
     ''' 
     Aim : Visualize the candle of the market of the considered Cryptocurrencie
@@ -128,6 +129,8 @@ def finance_visualize(data, symbol, interval, indicator):
 
 
     fig.show()
+=======
+>>>>>>> ca77fc406f92c0524b9e9316ca5d84828e9729ed
 
 
 
