@@ -4,6 +4,7 @@ import seaborn as sns
 import pandas as pd 
 import requests 
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import ta
 
 
@@ -90,8 +91,7 @@ def finance_visualize(data, symbol, interval):
     fig.show()
 
 
-<<<<<<< HEAD
-def finance_visualize(data, symbol, interval, indicator):
+def visualize_with_indicator(data, symbol, interval, indicator):
     ''' 
     Aim : Visualize the candle of the market of the considered Cryptocurrencie
     on the considered interval
@@ -107,18 +107,28 @@ def finance_visualize(data, symbol, interval, indicator):
     - interval : 
         type: string
         for instance '1day' or '5min'
+    - indicator :
+        type: string
+        RSI EMA ATR
         
     Output : Plot
 
     '''
     
-    fig = go.Figure(data=[go.Candlestick(x=data['datetime'],
-                                     open=data['open'],
-                                     high=data['high'],
-                                     low=data['low'],
-                                     close=data['close'])])
-    
-    fig.add_trace(go.Scatter(x=data.index, y=data[str(indicator)], mode='lines', name=str(indicator), yaxis='y2'))
+    indicator = 'EMA'
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=['Candles', 'RSI'])
+    candle = go.Candlestick(x=data['datetime'],
+                                        open=data['open'],
+                                        high=data['high'],
+                                        low=data['low'],
+                                        close=data['close'])
+
+    fig.add_trace(candle, row=1, col =1)
+
+
+    rsi_trace=go.Scatter(x=data['datetime'], y=data[str(indicator)], mode='lines', name=str(indicator), yaxis='y2')
+
+    fig.add_trace(rsi_trace, row=2, col=1)
 
     
     fig.update_layout(title='Cotation of ' + str(symbol) + ' per ' + str(interval) ,
@@ -129,8 +139,7 @@ def finance_visualize(data, symbol, interval, indicator):
 
 
     fig.show()
-=======
->>>>>>> ca77fc406f92c0524b9e9316ca5d84828e9729ed
+
 
 
 
