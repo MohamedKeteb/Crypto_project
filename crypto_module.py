@@ -4,7 +4,7 @@ import seaborn as sns
 import pandas as pd 
 import requests 
 import plotly.graph_objects as go
-from ta.momentum import *
+import ta
 
 
 def load_data(symbol, start_date, end_date, interval):
@@ -88,4 +88,26 @@ def finance_visualize(data, symbol, interval):
 
 
     fig.show()
+
+
+
+
+
+def add_indicators(data, period=14):
+
+    
+    ema = ta.trend.ema_indicator(close = data['close'], window = period).dropna()
+    rsi = ta.momentum.rsi(close=data['close'], window=period).dropna()
+    atr = ta.volatility.AverageTrueRange(close=data['close'],high=data['high'], low=data['low'], window=period).average_true_range()
+    atr = atr[atr>0]
+
+    data = pd.DataFrame(data.loc[period-1:])
+
+    data['RSI'] = rsi
+    data['EMA'] = ema
+    data['ATR'] = atr
+
+
+    return data.reset_index().drop('index', axis=1)
+
 
