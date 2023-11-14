@@ -7,7 +7,9 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.preprocessing import MinMaxScaler
 import ta
-
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
 
 def load_data(symbol, start_date, end_date, interval):
 
@@ -175,5 +177,32 @@ def scaling_data(data):
     
     return scaled_data
 
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def past_close_price(scaled_data,prediction_time):
+    price = np.array(scaled_data['close'])[:-prediction_time].reshape(-1,1)
+    return price
+
+def shift(scaled_data,prediction_time):
+    scaled_data['prediction'] = scaled_data['close'].shift(-prediction_time)
+    return scaled_data
+
+def target_data(scaled_data,prediction_time):
+    target = np.array(scaled_data['prediction'])[:-prediction_time].reshape(-1, 1)
+    return target
+
+def visualize_linear_reg(model,scaled_data):
+    plt.xlabel('Days')
+    plt.ylabel('BTC/USD ($)(scaled data)')
+    plt.plot(model[['close', 'prediction']])
+    plt.plot(scaled_data['close'], color = 'blue')
+    plt.legend(['Real Price', 'Prediction'])
+    plt.title('Prediction of close price of BTC/USD for the Last Month by Linear Regression')
+    plt.xlim(300, 365)
+    plt.show
+
+
+    
 
 
