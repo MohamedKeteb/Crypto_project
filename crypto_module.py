@@ -180,7 +180,7 @@ def scaling_data(data):
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def simple_lr_preprocess(scaled_data,regressor, prediction_time):
+def lr_preprocess(scaled_data,regressor, prediction_time):
     '''
     Aim : Shift the data to do regression on time series 
     for example, if you want to predict the next 30 days by changing the data, 
@@ -195,14 +195,14 @@ def simple_lr_preprocess(scaled_data,regressor, prediction_time):
     - target Type : Numpy Array 
 
     '''
-    target = scaled_data['target'].shift(-prediction_time).dropna()
+    target = scaled_data['close'].shift(-prediction_time).dropna()
     target = np.array(target).reshape(-1, 1)
 
     price = np.array(scaled_data[regressor])[:-prediction_time]
     
     return price, target 
 
-def apply_linear_regression(scaled_data, prediction_time, price, target):
+def apply_linear_regression(scaled_data, prediction_time, price, target, regressor):
 
     price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.7)
     lr = LinearRegression().fit(price_train, target_train)
@@ -214,7 +214,8 @@ def apply_linear_regression(scaled_data, prediction_time, price, target):
     prediction_matrix = pd.DataFrame(scaled_data['close'].tail(prediction_time))
     prediction_matrix['prediction'] = lr_prediction
 
-    future = lr.predict(prediction_matrix['close'])
+    price_to_future = np.array(scaled_data[regressor])[-prediction_time:].reshape(-1, 1)
+    future = lr.predict(price_to_future)
 
     target_predict = lr.predict(price_test)
     r2 = r2_score(target_test, target_predict)
