@@ -122,7 +122,7 @@ def visualize_with_indicator(data, symbol, interval, indicator):
 
     '''
     
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=['Candles', 'RSI'])
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=['Candles', str(indicator)])
     candle = go.Candlestick(x=data['datetime'],
                                         open=data['open'],
                                         high=data['high'],
@@ -180,26 +180,60 @@ def scaling_data(data):
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def past_close_price(scaled_data,prediction_time):
-    price = np.array(scaled_data['close'])[:-prediction_time].reshape(-1,1)
-    return price
+def simple_lr_preprocess(scaled_data,regressor, prediction_time):
+    '''
+    Aim : Shift the data to do regression on time series 
+    for example, if you want to predict the next 30 days by changing the data, 
+    each line of price is associated with the value taken 30 days later.
 
-def shift(scaled_data,prediction_time):
-    scaled_data['prediction'] = scaled_data['close'].shift(-prediction_time)
-    return scaled_data
+    Input:
+    - scaled_data   type : DataFrame
+    - prediction_time   type : int
 
-def target_data(scaled_data,prediction_time):
-    target = np.array(scaled_data['prediction'])[:-prediction_time].reshape(-1, 1)
-    return target
+    Output:
+    - price Type : Numpy Array 
+    - target Type : Numpy Array 
 
-def visualize_linear_reg(model,scaled_data):
+    '''
+    target = scaled_data['target'].shift(-prediction_time).dropna()
+    target = np.array(target).reshape(-1, 1)
+
+    price = np.array(scaled_data[regressor])[:-prediction_time]
+    
+    return price, target 
+
+def apply_linear_regression(scaled_data, prediction_time, price, target):
+
+    price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.7)
+    lr = LinearRegression().fit(price_train, target_train)
+
+    price_to_predict = price[-prediction_time:] 
+    lr_prediction = lr.predict(price_to_predict)
+
+
+    prediction_matrix = pd.DataFrame(scaled_data['close'].tail(prediction_time))
+    prediction_matrix['prediction'] = lr_prediction
+
+    future = lr.predict(prediction_matrix['close'])
+
+    target_predict = lr.predict(price_test)
+    r2 = r2_score(target_test, target_predict)
+
+    return prediction_matrix, future, r2 
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+def visualize_linear_reg(prediction_matrix,scaled_data, zoom = None):
+
     plt.xlabel('Days')
     plt.ylabel('BTC/USD ($)(scaled data)')
-    plt.plot(model[['close', 'prediction']])
-    plt.plot(scaled_data['close'], color = 'blue')
+    plt.plot(scaled_data['close'])
+    plt.plot(prediction_matrix[['close', 'prediction']])
     plt.legend(['Real Price', 'Prediction'])
+    if zoom is not None : 
+        plt.xlim(zoom[0], zoom[1])
     plt.title('Prediction of close price of BTC/USD for the Last Month by Linear Regression')
-    plt.xlim(300, 365)
     plt.show
 
 
