@@ -238,6 +238,46 @@ def visualize_linear_reg(prediction_matrix,scaled_data, zoom = None):
     plt.show
 
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
+def apply_linear_regression(scaled_data, prediction_time, price, target, regressor):
+
+    price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.7)
+    lr = LinearRegression().fit(price_train, target_train)
+
+    price_to_predict = price[-prediction_time:] 
+    lr_prediction = lr.predict(price_to_predict)
+
+
+    prediction_matrix = pd.DataFrame(scaled_data['close'].tail(prediction_time))
+    prediction_matrix['prediction'] = lr_prediction
+
+    price_to_future = np.array(scaled_data[regressor])[-prediction_time:].reshape(-1, 1)
+    future = lr.predict(price_to_future)
+
+    target_predict = lr.predict(price_test)
+    r2 = r2_score(target_test, target_predict)
+
+    return prediction_matrix, future, r2 
+
+
+#------------------------------------------------------------------------------------------------------------------------------
+
+def visualize_future(scaled_data, future, zoom = None):
+
+    plt.xlabel('Days')
+    plt.ylabel('BTC/USD ($)(scaled data)')
+    arr1 = np.array(scaled_data['close']).reshape(-1, 1)
+    arr2 = np.array(future).reshape(-1, 1) 
+    ct = np.concatenate((arr1, arr2))
+    plt.plot(ct)
+    if zoom is not None : 
+        plt.xlim(zoom[0], zoom[1])
+    plt.axvline(x = arr1.shape[0], color = 'r', linestyle = '--', label = 'Prediction')
+    plt.title('Prediction of close price of BTC/USD')
+
+    plt.show
+
+
 
 
