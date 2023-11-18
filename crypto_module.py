@@ -11,6 +11,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 from sklearn.svm import SVR
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense
+
 
 
 def load_data(symbol, start_date, end_date, interval):
@@ -283,6 +286,51 @@ def apply_svr(scaled_data, prediction_time, price, target, regressor):
     svr_accuracy = svr_rbf.score(price_test, target_test)
 
     return prediction_matrix, future, svr_accuracy 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Function to create sequences for training the model
+def create_sequences(scaled_data, sequence_length):
+    xs, ys = [], []
+    # Extract the column of data we want to predict (The close price)
+    data=scaled_data.iloc[:, 4]
+    # Iterate through the data to create sequences
+    for i in range(len(data) - sequence_length):
+        x = data[i:(i + sequence_length)] # Input sequence
+        y = data[i + sequence_length] # Target value
+        xs.append(x)
+        ys.append(y)
+    return np.array(xs), np.array(ys)
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def visualize_RNN_prediction(y_train, y_test,predicted_values):
+    # Combining y_train and y_test
+    full_y = np.concatenate([y_train, y_test])
+
+    # Creating a time axis for the full dataset
+    time_steps = np.arange(len(full_y))
+
+    # Determine the starting point for y_test in the combined array
+    test_start = len(y_train)
+
+    # Plotting
+    plt.figure(figsize=(12, 6))
+
+    # Plot y_train part
+    plt.plot(time_steps[:test_start], full_y[:test_start], label='Real price', color='blue')
+
+    # Plot y_test part
+    plt.plot(time_steps[test_start:], full_y[test_start:], label='Real price', color='orange')
+
+    # Plot predicted_values on top of y_test
+    plt.plot(time_steps[test_start:], predicted_values, label='Predicted Values', color='green', linestyle='--')
+
+    plt.title('Full Data with Real price and Predicted price')
+    plt.xlabel('Days')
+    plt.ylabel('Price')
+    plt.legend()
+    plt.show()
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
