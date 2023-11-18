@@ -224,7 +224,7 @@ def visualize_model(prediction_matrix,scaled_data, zoom = None):
     
 def apply_linear_regression(scaled_data, prediction_time, price, target, regressor):
 
-    price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.7)
+    price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.3)
     lr = LinearRegression().fit(price_train, target_train)
 
     price_to_predict = price[-prediction_time:] 
@@ -283,3 +283,21 @@ def apply_svr(scaled_data, prediction_time, price, target, regressor):
     svr_accuracy = svr_rbf.score(price_test, target_test)
 
     return prediction_matrix, future, svr_accuracy 
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def LSTM_inputs(scaled_data, window_size):
+
+    arr = scaled_data['close'].to_numpy()
+    X = []
+    Y = []
+    for i in range(len(arr) - window_size):
+        X.append(arr[i:i + window_size])
+        Y.append(arr[i+window_size])
+    X = np.array(X)
+    price = X.reshape((X.shape[0], X.shape[1], 1))
+    label = np.array(Y)
+    return price, label 
+
+    
