@@ -10,6 +10,8 @@ import ta
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
+from sklearn.svm import SVR
+
 
 def load_data(symbol, start_date, end_date, interval):
 
@@ -190,7 +192,7 @@ def data_preprocess(scaled_data,regressor, prediction_time):
     - scaled_data   type : DataFrame
     - prediction_time   type : int
 
-    Output:
+    Output:w
     - price Type : Numpy Array 
     - target Type : Numpy Array 
 
@@ -202,30 +204,10 @@ def data_preprocess(scaled_data,regressor, prediction_time):
     
     return price, target 
 
-def apply_linear_regression(scaled_data, prediction_time, price, target, regressor):
-
-    price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.7)
-    lr = LinearRegression().fit(price_train, target_train)
-
-    price_to_predict = price[-prediction_time:] 
-    lr_prediction = lr.predict(price_to_predict)
-
-
-    prediction_matrix = pd.DataFrame(scaled_data['close'].tail(prediction_time))
-    prediction_matrix['prediction'] = lr_prediction
-
-    price_to_future = np.array(scaled_data[regressor])[-prediction_time:].reshape(-1, 1)
-    future = lr.predict(price_to_future)
-
-    target_predict = lr.predict(price_test)
-    r2 = r2_score(target_test, target_predict)
-
-    return prediction_matrix, future, r2 
-
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def visualize_linear_reg(prediction_matrix,scaled_data, zoom = None):
+def visualize_model(prediction_matrix,scaled_data, zoom = None):
 
     plt.xlabel('Days')
     plt.ylabel('BTC/USD ($)(scaled data)')
@@ -279,5 +261,25 @@ def visualize_future(scaled_data, future, zoom = None):
     plt.show
 
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+def apply_svr(scaled_data, prediction_time, price, target, regressor):
+
+    price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.7)
+    svr_rbf = SVR(kernel = 'rbf', C = 1e5, gamma= 1e-5)
+    svr_rbf.fit(price_train, np.ravel(target_train))
+
+    price_to_predict = price[-prediction_time:] 
+    svr_prediction = svr_rbf.predict(price_to_predict)
+
+
+    prediction_matrix = pd.DataFrame(scaled_data['close'].tail(prediction_time))
+    prediction_matrix['prediction'] = svr_prediction
+
+    price_to_future = np.array(scaled_data[regressor])[-prediction_time:]
+    future = svr_rbf.predict(price_to_future)
+
+    svr_accuracy = svr_rbf.score(price_test, target_test)
+
+    return prediction_matrix, future, svr_accuracy 
