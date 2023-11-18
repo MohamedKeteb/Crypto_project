@@ -180,7 +180,7 @@ def scaling_data(data):
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def lr_preprocess(scaled_data,regressor, prediction_time):
+def data_preprocess(scaled_data,regressor, prediction_time):
     '''
     Aim : Shift the data to do regression on time series 
     for example, if you want to predict the next 30 days by changing the data, 
@@ -231,7 +231,7 @@ def visualize_linear_reg(prediction_matrix,scaled_data, zoom = None):
     plt.ylabel('BTC/USD ($)(scaled data)')
     plt.plot(scaled_data['close'])
     plt.plot(prediction_matrix[['close', 'prediction']])
-    plt.legend(['Real Price', 'Prediction'])
+    plt.legend(['Real Price', 'Real, price', 'Prediction'])
     if zoom is not None : 
         plt.xlim(zoom[0], zoom[1])
     plt.title('Prediction of close price of BTC/USD for the Last Month by Linear Regression')
@@ -252,7 +252,7 @@ def apply_linear_regression(scaled_data, prediction_time, price, target, regress
     prediction_matrix = pd.DataFrame(scaled_data['close'].tail(prediction_time))
     prediction_matrix['prediction'] = lr_prediction
 
-    price_to_future = np.array(scaled_data[regressor])[-prediction_time:].reshape(-1, 1)
+    price_to_future = np.array(scaled_data[regressor])[-prediction_time:]
     future = lr.predict(price_to_future)
 
     target_predict = lr.predict(price_test)
@@ -270,10 +270,10 @@ def visualize_future(scaled_data, future, zoom = None):
     arr1 = np.array(scaled_data['close']).reshape(-1, 1)
     arr2 = np.array(future).reshape(-1, 1) 
     ct = np.concatenate((arr1, arr2))
+    plt.axvline(x = arr1.shape[0], color = 'r', linestyle = '--', label = 'Prediction')
     plt.plot(ct)
     if zoom is not None : 
         plt.xlim(zoom[0], zoom[1])
-    plt.axvline(x = arr1.shape[0], color = 'r', linestyle = '--', label = 'Prediction')
     plt.title('Prediction of close price of BTC/USD')
 
     plt.show
