@@ -269,7 +269,7 @@ def visualize_future(scaled_data, future, zoom = None):
 
 def apply_svr(scaled_data, prediction_time, price, target, regressor):
 
-    price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.7)
+    price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.3)
     svr_rbf = SVR(kernel = 'rbf', C = 1e5, gamma= 1e-5)
     svr_rbf.fit(price_train, np.ravel(target_train))
 
