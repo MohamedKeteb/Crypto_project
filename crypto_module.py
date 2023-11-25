@@ -3,16 +3,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd 
 import requests 
+import ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.preprocessing import MinMaxScaler
-import ta
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 from sklearn.svm import SVR
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dropout, Dense
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error
 
 
 
@@ -267,10 +269,10 @@ def visualize_future(scaled_data, future, zoom = None):
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def apply_svr(scaled_data, prediction_time, price, target, regressor):
+def apply_svr(scaled_data, prediction_time, price, target, regressor, best_C, best_gamma):
 
     price_train, price_test, target_train, target_test = train_test_split(price, target, test_size = 0.3)
-    svr_rbf = SVR(kernel = 'rbf', C = 1e5, gamma= 1e-5)
+    svr_rbf = SVR(kernel = 'rbf', C = best_C, gamma= best_gamma)
     svr_rbf.fit(price_train, np.ravel(target_train))
 
     price_to_predict = price[-prediction_time:] 
@@ -286,7 +288,28 @@ def apply_svr(scaled_data, prediction_time, price, target, regressor):
     svr_accuracy = svr_rbf.score(price_test, target_test)
 
     return prediction_matrix, future, svr_accuracy 
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+def cross_validation_parameter(param_grid, price_train, target_train):
+
+    svr_rbf = SVR(kernel = 'rbf') # We use the Support Vector Regression
+    search = GridSearchCV(svr_rbf, param_grid, cv=3, scoring = 'neg_mean_squared_error', n_jobs=-1)
+    search.fit(price_train, np.ravel(target_train)) # we fit the cross validation on the data
+    
+    best_C = search.best_params_['C']
+    best_gamma = search.best_params_['gamma']
+
+    return best_C, best_gamma
+
+
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 # Function to create sequences for training the model
 def create_sequences(scaled_data, sequence_length):
