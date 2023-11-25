@@ -350,7 +350,7 @@ def visualize_RNN_prediction(y_train, y_test,predicted_values):
     plt.plot(time_steps[test_start:], predicted_values, label='Predicted Values', color='green', linestyle='--')
 
     plt.title('Full Data with Real price and Predicted price')
-    plt.xlabel('Days')
+    plt.xlabel('time')
     plt.ylabel('Price')
     plt.legend()
     plt.show()
@@ -380,6 +380,30 @@ def lstm_model(X, y):
     return y_train, y_test, predicted_values
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def recursive_prediction(X,y, t):
+        # We split the data into training and testing sets
+    
+    model = Sequential([
+    LSTM(50, return_sequences=True, input_shape=(X.shape[1], 1)), # LSTM layer with 50 units and return sequences
+    Dropout(0.2), # Dropout layer to prevent overfitting
+    LSTM(50, return_sequences=False), 
+    Dropout(0.2),
+    Dense(25), 
+    Dense(1) 
+    ])
+
+    model.compile(optimizer='adam', loss='mean_squared_error') # Use Adam optimizer and mean squared error loss to optimize the prediction
+    model.fit(X, y, batch_size=351, epochs=200) # Train for 200 epochs (= How many times the entire dataset is used for training) with a batch size (=How many data samples are processed at a time during an epoch) of 351
+    
+    prediction = y[-10:].tolist()
+
+    while len(prediction) - 10 <= t:
+        l = np.array([prediction[-10:]])
+        p = model.predict(l)
+        prediction.append(p[0][0])
+    return prediction
+
 
 
 
