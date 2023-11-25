@@ -335,19 +335,26 @@ def visualize_RNN_prediction(y_train, y_test,predicted_values):
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def LSTM_inputs(scaled_data, window_size):
+def lstm_model(X, y):
+    # We split the data into training and testing sets
+    train_size = int(len(X) * 0.7)
+    X_train, X_test = X[:train_size], X[train_size:]
+    y_train, y_test = y[:train_size], y[train_size:]
 
-    arr = scaled_data['close'].to_numpy()
-    X = []
-    Y = []
-    for i in range(len(arr) - window_size):
-        X.append(arr[i:i + window_size])
-        Y.append(arr[i+window_size])
-    X = np.array(X)
-    price = X.reshape((X.shape[0], X.shape[1], 1))
-    label = np.array(Y)
-    return price, label 
+    model = Sequential([
+    LSTM(50, return_sequences=True, input_shape=(X_train.shape[1], 1)), # LSTM layer with 50 units and return sequences
+    Dropout(0.2), # Dropout layer to prevent overfitting
+    LSTM(50, return_sequences=False), 
+    Dropout(0.2),
+    Dense(25), 
+    Dense(1) 
+    ])
 
+    model.compile(optimizer='adam', loss='mean_squared_error') # Use Adam optimizer and mean squared error loss to optimize the prediction
+    model.fit(X_train, y_train, batch_size=351, epochs=200) # Train for 200 epochs (= How many times the entire dataset is used for training) with a batch size (=How many data samples are processed at a time during an epoch) of 351
+    predicted_values= model.predict(X_test)
+
+    return y_train, y_test, predicted_values
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
