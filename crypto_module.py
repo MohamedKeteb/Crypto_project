@@ -394,7 +394,7 @@ def recursive_prediction(X,y, t):
     ])
 
     model.compile(optimizer='adam', loss='mean_squared_error') # Use Adam optimizer and mean squared error loss to optimize the prediction
-    model.fit(X, y, batch_size=351, epochs=200) # Train for 200 epochs (= How many times the entire dataset is used for training) with a batch size (=How many data samples are processed at a time during an epoch) of 351
+    model.fit(X, y, batch_size=351, epochs=100) # Train for 200 epochs (= How many times the entire dataset is used for training) with a batch size (=How many data samples are processed at a time during an epoch) of 351
     
     prediction = y[-10:].tolist()
 
