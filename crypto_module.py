@@ -374,7 +374,7 @@ def lstm_model(X, y):
     ])
 
     model.compile(optimizer='adam', loss='mean_squared_error') # Use Adam optimizer and mean squared error loss to optimize the prediction
-    model.fit(X_train, y_train, batch_size=351, epochs=200) # Train for 200 epochs (= How many times the entire dataset is used for training) with a batch size (=How many data samples are processed at a time during an epoch) of 351
+    model.fit(X_train, y_train, batch_size=351, epochs=100) # Train for 200 epochs (= How many times the entire dataset is used for training) with a batch size (=How many data samples are processed at a time during an epoch) of 351
     predicted_values= model.predict(X_test)
 
     return y_train, y_test, predicted_values
@@ -396,10 +396,10 @@ def recursive_prediction(X,y, t):
     model.compile(optimizer='adam', loss='mean_squared_error') # Use Adam optimizer and mean squared error loss to optimize the prediction
     model.fit(X, y, batch_size=351, epochs=100) # Train for 200 epochs (= How many times the entire dataset is used for training) with a batch size (=How many data samples are processed at a time during an epoch) of 351
     
-    prediction = y[-10:].tolist()
+    prediction = y[-X.shape[1]:].tolist()
 
-    while len(prediction) - 10 <= t:
-        l = np.array([prediction[-10:]])
+    while len(prediction) - X.shape[1] < t:
+        l = np.array([prediction[-X.shape[1]:]])
         p = model.predict(l)
         prediction.append(p[0][0])
     return prediction
