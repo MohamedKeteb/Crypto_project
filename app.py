@@ -1,10 +1,12 @@
 import streamlit as st 
 import time
 from PIL import Image
+import crypto_module
+import datetime
 
-image = Image.open('app_image.jpeg')
+image = Image.open('neural_image.jpeg')
 st.image(image, width = 700)
-st.text_area('','Use of Long short-terme memory deep learning model to predict the close price of a cryptocurrency')
+st.text_area(' ','Use of Long short-terme memory deep learning model to predict the close price of a cryptocurrency')
 st.warning('Warning : the given prediction is by no means a reliable investment !')
 
 crypto_selectbox = st.selectbox('Choose your Cryptocurrency', 
@@ -25,6 +27,5 @@ if button_prediction:
         time.sleep(5)
     st.success('Done!')
 
-    
 
 
