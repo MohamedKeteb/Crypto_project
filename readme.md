@@ -4,3 +4,4 @@
   - Linear Regression (simple and multiple)
   - Support Vector Regression
   - Neural Network
+- To run the app use the command : $\texttt{streamlit run app.py}$
