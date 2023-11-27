@@ -3,6 +3,7 @@ import time
 from PIL import Image
 import crypto_module
 import datetime
+import pandas as pd 
 
 time_now = datetime.datetime.now()
 format_date = "%Y-%m-%d %H:00:00"
@@ -48,10 +49,16 @@ if button_prediction:
         scaled_data = crypto_module.scaling_data(data)
         X, y = crypto_module.create_sequences(scaled_data, sequence_length = 10) # Prediction based on 10 periods (10 days or 10 hours) 
         prediction = crypto_module.recursive_prediction(X, y, t)
+        df = pd.DataFrame(prediction[-t:], columns=['Scaled Price'])
 
     st.success('Done', icon="✅")
 
-    st.line_chart(prediction[-t:])
+    if interval == '1h':
+        st.line_chart(df,  y = 'Scaled Price')
+    else:
+
+        st.line_chart(df, y = 'Scaled Price')
+
 
 
 
