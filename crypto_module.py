@@ -155,6 +155,9 @@ def visualize_with_indicator(data, symbol, interval, indicator):
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def close_rolling_mean(d, values) :
+    
+    return(values['close'].rolling(window=d).mean())
 
 def add_indicators(data, period=14):
 
@@ -162,7 +165,6 @@ def add_indicators(data, period=14):
     rsi = ta.momentum.rsi(close=data['close'], window=period).dropna()
     atr = ta.volatility.AverageTrueRange(close=data['close'],high=data['high'], low=data['low'], window=period).average_true_range()
     atr = atr[atr>0]
-
     data = pd.DataFrame(data.loc[period-1:])
 
     data['RSI'] = rsi
