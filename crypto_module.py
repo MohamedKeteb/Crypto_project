@@ -1,4 +1,7 @@
+#------------------------------------------------------------------------------------------------------------------
+
 import numpy as np 
+
 import matplotlib.pyplot as plt 
 import seaborn as sns
 import pandas as pd 
@@ -15,7 +18,11 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dropout, Dense
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
-
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.arima_model import ARIMA
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
 
 
 def load_data(symbol, start_date, end_date, interval):
@@ -155,33 +162,9 @@ def visualize_with_indicator(data, symbol, interval, indicator):
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def arima_stationnarity_check(data, period = 14):
-    
-    # Moving statistics
-    rolling_mean = data.rolling(window=period).mean()
-    rolling_std = data.rolling(window=period).std()
-    
-    # Plot comparing time series and its moving statistics
-    original = plt.plot(data, color='blue', label='Origine')
-    mean = plt.plot(rolling_mean, color='red', label='Rolling mean')
-    std = plt.plot(rolling_std, color='black', label='Rolling standard deviation')
-    plt.legend(loc='best')
-    plt.title('Rolling mean/standard deviation')
-    plt.show(block=False)
-    
-    # Dickey–Fuller's Test :
-    result = adfuller(data['Passengers'])
-    print('ADF statistics : {}'.format(result[0]))
-    print('p-value : {}'.format(result[1]))
-    print('Critical values :')
-    for key, value in result[4].items():
-        print('\t{}: {}'.format(key, value)
-
-
+   
 def add_indicators(data, period=14, d = 14):
 
-    rstd = rolling_std = data['close'].rolling(window = 14).std().dropna()
-    rmean = data['close'].rolling(window=d).mean().dropna()
     ema = ta.trend.ema_indicator(close = data['close'], window = period).dropna()
     rsi = ta.momentum.rsi(close=data['close'], window=period).dropna()
     atr = ta.volatility.AverageTrueRange(close=data['close'],high=data['high'], low=data['low'], window=period).average_true_range()
@@ -191,8 +174,7 @@ def add_indicators(data, period=14, d = 14):
     data['RSI'] = rsi
     data['EMA'] = ema
     data['ATR'] = atr
-    data['RMEAN'] = rmean
-    data['RSTD'] = rstd
+
 
 
     return data.reset_index().drop('index', axis=1)
