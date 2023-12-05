@@ -155,6 +155,28 @@ def visualize_with_indicator(data, symbol, interval, indicator):
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def arima_stationnarity_check(data, period = 14):
+    
+    # Moving statistics
+    rolling_mean = data.rolling(window=period).mean()
+    rolling_std = data.rolling(window=period).std()
+    
+    # Plot comparing time series and its moving statistics
+    original = plt.plot(data, color='blue', label='Origine')
+    mean = plt.plot(rolling_mean, color='red', label='Rolling mean')
+    std = plt.plot(rolling_std, color='black', label='Rolling standard deviation')
+    plt.legend(loc='best')
+    plt.title('Rolling mean/standard deviation')
+    plt.show(block=False)
+    
+    # Dickey–Fuller's Test :
+    result = adfuller(data['Passengers'])
+    print('ADF statistics : {}'.format(result[0]))
+    print('p-value : {}'.format(result[1]))
+    print('Critical values :')
+    for key, value in result[4].items():
+        print('\t{}: {}'.format(key, value)
+
 
 def add_indicators(data, period=14, d = 14):
 
