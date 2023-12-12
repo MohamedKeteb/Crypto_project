@@ -20,6 +20,7 @@ from sklearn.metrics import mean_squared_error
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima_model import ARIMA
+from statsmodels.graphics.tsaplots import plot_acf
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
