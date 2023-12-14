@@ -24,7 +24,7 @@ from statsmodels.graphics.tsaplots import plot_acf
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
-
+# This function loads Bitcoin data from an API.
 def load_data(symbol, start_date, end_date, interval):
 
     api_key = 'de6ee984b4c24a0c9c7a43d7dca8b75e' # The Api key of Twelvedata.com (800 requests per day)
@@ -93,7 +93,7 @@ def finance_visualize(data, symbol, interval):
     Output : Plot
 
     '''
-    
+    # Creating a candlestick chart using Plotly.
     fig = go.Figure(data=[go.Candlestick(x=data['datetime'],
                                      open=data['open'],
                                      high=data['high'],
@@ -162,9 +162,9 @@ def visualize_with_indicator(data, symbol, interval, indicator):
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   
+# This function adds technical indicators to the given bitcoin data. 
 def add_indicators(data, period=14, d = 14):
-
+    
     ema = ta.trend.ema_indicator(close = data['close'], window = period).dropna()
     rsi = ta.momentum.rsi(close=data['close'], window=period).dropna()
     atr = ta.volatility.AverageTrueRange(close=data['close'],high=data['high'], low=data['low'], window=period).average_true_range()
@@ -181,15 +181,40 @@ def add_indicators(data, period=14, d = 14):
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 def scaling_data(data):
+    # Create a copy of the data to avoid modifying the original DataFrame
+    scaled_data = data.copy()
 
-    m = data.drop('datetime', axis =1)
-    scaler =MinMaxScaler(feature_range=(0, 1))
-    scaled_data = pd.DataFrame(scaler.fit_transform(m), columns= data.columns[1:])
-    scaled_data.insert(0, 'datetime', data['datetime'])
-    
+    # Find the global minimum and maximum values from the 'low' and 'high' columns, respectively
+    global_min = data['low'].min()
+    global_max = data['high'].max()
+
+    # Define a function to scale each value
+    def scale_value(value, min_val, max_val):
+        return (value - min_val) / (max_val - min_val)
+
+    # Scale the 'open' and 'close' prices with respect to the global min and max
+    scaled_data['open'] = data['open'].apply(scale_value, args=(global_min, global_max))
+    scaled_data['close'] = data['close'].apply(scale_value, args=(global_min, global_max))
+
+    # we directly scale 'high' and 'low' with global min and max as well
+    scaled_data['high'] = data['high'].apply(scale_value, args=(global_min, global_max))
+    scaled_data['low'] = data['low'].apply(scale_value, args=(global_min, global_max))
+
+    # Scale other columns individually 
+    for column in data.columns:
+        if column not in ['datetime', 'open', 'high', 'low', 'close']:
+            
+            scaler = MinMaxScaler(feature_range=(0, 1))
+            # Scale each column separately
+            scaled_column = scaler.fit_transform(data[[column]])
+            # Store the scaled values back in the DataFrame
+            scaled_data[column] = scaled_column.flatten()
+
     return scaled_data
+
+
+
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
