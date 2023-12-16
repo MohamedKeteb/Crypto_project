@@ -49,6 +49,7 @@ if button_prediction:
         scaled_data = crypto_module.scaling_data(data)
         X, y = crypto_module.create_sequences(scaled_data, sequence_length = 10) # Prediction based on 10 periods (10 days or 10 hours) 
         prediction = crypto_module.recursive_prediction(X, y, t)
+        prediction = inverse_scalling(prediction, data)
         df = pd.DataFrame(prediction[-t:], columns=['Scaled Price'])
 
     st.success('Done', icon="✅")

@@ -465,3 +465,10 @@ def recursive_prediction(X,y, t):
 
 
     
+def inverse_scalling(x, data):
+    
+    y = pd.DataFrame(x)
+    inv_scale  = lambda z : z * (data['high'].max() - data['low'].min()) + data['low'].min()
+    x = np.array(y.apply(inv_scale))
+
+    return x
