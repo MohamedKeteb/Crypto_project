@@ -26,16 +26,41 @@ register_matplotlib_converters()
 
 # This function loads Bitcoin data from an API.
 def load_data(symbol, start_date, end_date, interval):
+    '''
+    Aim : Load the data from the API 
+
+    Input :
+    - symbol :
+        type: string
+        for instance 'BTC/USD'
+    - start_date : 
+        type : string 
+        format : "%Y-%m-%d 00:00:00"
+    - end_data :
+        type : string
+        format : "%Y-%m-%d 00:00:00"
+    - interval : 
+        trype : string 
+        e.g '1day',  '1h'
+    
+    output : 
+        data
+        type : Pandas DataFrame
+    
+
+    '''
+
 
     api_key = 'de6ee984b4c24a0c9c7a43d7dca8b75e' # The Api key of Twelvedata.com (800 requests per day)
     order = 'asc'
     api_url = f'https://api.twelvedata.com/time_series?symbol={symbol}&start_date={start_date}&end_date={end_date}&interval={interval}&order={order}&apikey={api_key}'
     
     data = requests.get(api_url).json() # API request to have the data in a json datatyped
-    data = pd.DataFrame(data['values'])
-    data.dropna()
+    data = pd.DataFrame(data['values']) # request the key 'values'
+    data.dropna() # drpo NaN values
     
-    for col in data.columns[1:]:
+    # change the type from object to numeric in order to plot the time series properly
+    for col in data.columns[1:]: 
         data[col] = pd.to_numeric(data[col], errors = 'coerce')
     
     return data
