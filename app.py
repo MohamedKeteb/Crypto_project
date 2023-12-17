@@ -21,7 +21,7 @@ st.info('Use of Long short-terme memory deep learning model to predict the close
 st.warning('Warning : the given prediction is by no means a reliable investment !')
 
 crypto_selectbox = st.selectbox('Choose your Cryptocurrency', 
-                             ('BTC/USD', 'ETH/USD', 'BNB/USD'))
+                             ('BTC/USD', 'ETH/USD', 'BNB/USD', 'XRP/USD', 'SOL/USD', 'ADA/USD', 'DOGE/USD', 'TRX/USD', 'USDC/USD'))
 
 
 t = None
@@ -50,15 +50,15 @@ if button_prediction:
         X, y = crypto_module.create_sequences(scaled_data, sequence_length = 10) # Prediction based on 10 periods (10 days or 10 hours) 
         prediction = crypto_module.recursive_prediction(X, y, t)
         prediction = crypto_module.inverse_scalling(prediction, data)
-        df = pd.DataFrame(prediction[-t:], columns=['Scaled Price'])
+        df = pd.DataFrame(prediction[-t:], columns=['Price USD'])
 
     st.success('Done', icon="✅")
 
     if interval == '1h':
-        st.line_chart(df,  y = 'Scaled Price')
+        st.line_chart(df, y = 'Price USD')
     else:
 
-        st.line_chart(df, y = 'Scaled Price')
+        st.line_chart(df, y = 'Price USD')
 
 
 
