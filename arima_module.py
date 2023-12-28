@@ -75,3 +75,32 @@ def arima_viz_with_indicator(data, symbol, interval) :
     fig.show()
 
 
+# 04- To run stationnarity test on differencing series 
+
+def find_diff_order_2(data, price) :
+
+    adf_statistic, adf_p_value = adf_test(data, price)
+
+    kpss_p_value = kpss_test(data, price, to_print= False).loc["p-value"]
+
+    if adf_p_value > 0.05 or kpss_p_value < 0.05 :
+ 
+        d = 0
+
+        while adf_p_value > 0.05 or kpss_p_value < 0.05 :
+            print("")
+            print("")
+            print("P-values not good, trying differencing")
+            # difference the time series
+            data[str(price)] = data[str(price)].diff()
+            # drop the null values
+            data.dropna(inplace = True)
+            # add 1 to d for each iteration to represent 1 differencing
+            d += 1
+            # perform adf test again to asses p value and exit loop if stationary
+            adf_statistic, p_value = adf_test(data, price)
+            # perform KPSS test
+            kpss_p_value = kpss_test(data, price, to_print= False).loc["p-value"]
+        print(f"Success... TS now stationary after {d} differencing")
+  
+        return d
