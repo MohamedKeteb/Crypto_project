@@ -68,7 +68,7 @@ def load_data(symbol, start_date, end_date, interval):
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def visualize_data(data, symbol, interval):
+def visualize_data(data, symbol, interval, ln = False):
     '''
     Aim : Visualize the close cotation of  the considered Cryptocurrencie on the considered interval
     
@@ -87,14 +87,19 @@ def visualize_data(data, symbol, interval):
     Output : Plot
 
     '''
-                   
-    sns.set(style = 'darkgrid')
-    plt.title('Close cotation of '+ str(symbol))
-    plt.xlabel(str(interval))
-    plt.ylabel('USD')
-    sns.lineplot(x = data.index, y = data['close'], color = 'green')
+    if ln == True :
+
+        data[str(price)] = np.log(data[str(price)])
+    
+    else :
+        
+        sns.set(style = 'darkgrid')
+        plt.title('Close cotation of '+ str(symbol))
+        plt.xlabel(str(interval))
+        plt.ylabel('USD')
+        sns.lineplot(x = data.index, y = data['close'], color = 'green')
        
-    plt.show()
+        plt.show()
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
