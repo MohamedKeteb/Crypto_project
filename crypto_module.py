@@ -188,13 +188,14 @@ def visualize_with_indicator(data, symbol, interval, indicator):
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # This function adds technical indicators to the given bitcoin data. 
-def add_indicators(data, period=14, d = 14):
+def add_indicators(data, period=14):
     
     ema = ta.trend.ema_indicator(close = data['close'], window = period).dropna()
     rsi = ta.momentum.rsi(close=data['close'], window=period).dropna()
     atr = ta.volatility.AverageTrueRange(close=data['close'],high=data['high'], low=data['low'], window=period).average_true_range()
     atr = atr[atr>0]
     data = pd.DataFrame(data.loc[period-1:])
+
 
     data['RSI'] = rsi
     data['EMA'] = ema
