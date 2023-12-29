@@ -27,7 +27,7 @@ such as linear regression, SVR, LSTM, and ARIMA, to obtain stock price predictio
 
 Required modules and packages to run all the files :
 
-- in ```crypto\_module.py``` :
+- in ```crypto_module.py``` :
     
     ```
     matplotlib
@@ -45,7 +45,7 @@ Required modules and packages to run all the files :
     
     ```
 
-- in ```crypto_module.py``` :
+- in ```app.py``` :
   
     ```
     streamlit
