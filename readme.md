@@ -26,10 +26,18 @@ such as linear regression, SVR, LSTM, and ARIMA, to obtain stock price predictio
 
 
 Required modules and packages to run all the files :
-'''
-import numpy 
 
-'''
+- in $\texttt{crypto_module.py}$ :
+    
+    ```
+    numpy
+    seaborn
+    pandas
+    
+     
+    
+    ```
+
 
 
 
