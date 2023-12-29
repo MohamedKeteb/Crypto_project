@@ -1,5 +1,4 @@
 #------------------------------------------------------------------------------------------------------------------
-import warnings
 import numpy as np 
 import matplotlib.pyplot as plt 
 import seaborn as sns
@@ -17,12 +16,15 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dropout, Dense
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
+import statsmodels.api as sm
+import statsmodels.tsa.stattools as stattools
 from statsmodels.tsa.stattools import adfuller
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.arima_model import ARIMA
-from statsmodels.graphics.tsaplots import plot_acf
-from pandas.plotting import register_matplotlib_converters
-register_matplotlib_converters()
+from statsmodels.tsa.stattools import kpss 
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+import statsmodels.api as sm
+import pmdarima as pm
+import datetime
 
 # This function loads Bitcoin data from an API.
 def load_data(symbol, start_date, end_date, interval):
@@ -68,7 +70,7 @@ def load_data(symbol, start_date, end_date, interval):
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def visualize_data(data, symbol, interval, ln = False):
+def visualize_data(data, symbol, interval):
     '''
     Aim : Visualize the close cotation of  the considered Cryptocurrencie on the considered interval
     
@@ -87,12 +89,6 @@ def visualize_data(data, symbol, interval, ln = False):
     Output : Plot
 
     '''
-    if ln == True :
-
-        data[str(price)] = np.log(data[str(price)])
-    
-    else :
-        
         sns.set(style = 'darkgrid')
         plt.title('Close cotation of '+ str(symbol))
         plt.xlabel(str(interval))
@@ -478,3 +474,276 @@ def inverse_scalling(x, data):
     x = np.array(y.apply(inv_scale))
 
     return x
+
+
+#----------------------------- Functions for ARIMA model computations------------------------------------------------------------#
+
+# 01- Add moving Average/Std to the table containing the cotation 
+
+def add_arima_indicators(data, price, period, ln = False) : 
+
+""" Inputs : 
+
+        price : str = the price we aim to predict (close, high...)
+
+        period : the length of the rolling window used to compute rolling statistics from the price we defined
+
+        ln : Boolean, to transform or not the value by applying log 
+ 
+"""    
+    
+    if ln == True :
+    
+        for i in data.columns[1:] :
+
+            data[str(i)] = np.log(data[str(i)])
+
+
+    ma = data[str(price)].rolling(window=period).mean().dropna()
+    mstd = data[str(price)].rolling(window=period).std().dropna()
+    data = pd.DataFrame(data.loc[period-1:])
+
+    data['ma'] = ma
+    data['mstd'] = mstd
+    
+    return data.reset_index().drop('index', axis=1)
+
+
+# 02- Visualize the cotations along with the moving average of our choice 
+
+def arima_viz_with_indicator(data, symbol, interval) :
+
+    fig = make_subplots(rows=3, cols=1, shared_xaxes=True, subplot_titles=['Candles', 'Moving Average', 'Moving Std'])
+    candle = go.Candlestick(x=data['datetime'],
+                                        open=data['open'],
+                                        high=data['high'],
+                                        low=data['low'],
+                                        close=data['close'], 
+                                        name = "Cotation")
+
+    fig.add_trace(candle, row=1, col =1)
+
+
+    ma_trace=go.Scatter(x=data['datetime'], y=data['ma'], mode='lines', name="Moving Average", yaxis='y2')
+
+    fig.add_trace(ma_trace, row=2, col=1)
+
+    mstd_trace=go.Scatter(x=data['datetime'], y=data['mstd'], mode='lines', name="Moving Std", yaxis='y3')
+
+    fig.add_trace(mstd_trace, row=3, col=1)
+
+    
+    fig.update_layout(title='Cotation of ' + str(symbol) + ' per ' + str(interval) ,
+                  xaxis_title='Date',
+                  yaxis_title='Price in USD',
+                  xaxis_rangeslider_visible=False)
+
+
+
+    fig.show()
+
+
+# 03- To compute ADF and KPSS test for stationnarity
+
+def adf_test(data, price, to_print = True) : 
+    """
+    Inputs : 
+            to_print : Boolean allowing us wether to print the results of test for commentary purposes or just 
+                       assigning them to variables for computationnal purposes 
+    """
+    result = adfuller(data[str(price)])
+    adf_stat = result[0]
+    p_value = result[1]
+
+    if to_print == True : 
+
+        print('ADF statistic : %f' % adf_stat)
+        print('p-value : %f' % p_value)
+
+    else :
+        
+        return adf_stat, p_value
+
+
+
+
+
+def kpss_test(data, price, to_print = True) : 
+    
+    kpsstest = kpss(data[str(price)], regression="ct", nlags="auto")
+    kpss_output = pd.Series(
+        kpsstest[0:2], index=["Test Statistic", "p-value"]
+    )
+    if to_print == True :
+        
+        print("Results of KPSS Test:")
+        print(kpss_output)
+
+    else :
+        
+        return kpss_output
+
+
+# 04- To find the number of times we must differentiate the data to achieve stationnarity
+
+def find_diff_order(data, price, to_print = True) :
+
+    d = 0
+    diff_data = data
+    adf_statistic, p_value = adf_test(data, price, to_print= False)
+
+    kpss_test(data, price, to_print= False)
+
+    while p_value > 0.05 :
+
+        # difference the time series
+        diff_data[str(price)] = diff_data[str(price)].diff()
+        # drop the null values
+        diff_data.dropna(inplace = True)
+            # add 1 to d for each iteration to represent 1 differencing
+        d += 1
+            # perform adf test again to asses p value and exit loop if stationary
+        adf_statistic, p_value = adf_test(diff_data, price, to_print= False)
+            # perform KPSS test
+        
+
+    if to_print == True :
+
+        kpss_test(diff_data, price)
+        print(f"Success... TS now stationary after {d} differencing")
+
+    else :
+        
+        return d, diff_data
+
+# 05- To plot simultaneaously the ACF and PACF to look for AR and MA parameters 
+
+def acf_pacf(data, price):
+ 
+    fig, ax = plt.subplots(1, figsize=(9,4), dpi=100)
+    sm.graphics.tsa.plot_acf(data[str(price)], lags=20, ax = ax)
+    plt.ylim([-0.05, 0.25])
+    plt.yticks(np.arange(-0.20,1.2, 0.1))
+    plt.show()
+    
+    fig, ax = plt.subplots(1, figsize=(9,4), dpi=100)
+    sm.graphics.tsa.plot_pacf(data[str(price)], lags = 20, ax = ax)
+    plt.ylim([-0.05, 0.25])
+    plt.yticks(np.arange(-0.20,1.2, 0.1))
+    plt.show()
+
+# 06- To compare the distribution in the two half of our differenced data
+
+def fast_dist_check(data, price):
+    n = int(len(data[str(price)])/2)
+    print(data[str(price)][:n].describe())
+    print(data[str(price)][n:].describe())
+
+    fig, ax = plt.subplots(1, figsize=(8,6), dpi=100)
+    data[str(price)][:n].hist()
+    data[str(price)][n:].hist()
+
+# 07- To compute Ljung-box test on our differenced data
+
+def LB_test(data, price) : 
+    return sm.stats.acorr_ljungbox(data[str(price)], lags= [20], return_df= True)
+
+# 08- Performing an auto-arima to the best values for parameters based on AIC criterion
+
+def auto_arima(data, price):
+
+    model = pm.auto_arima(data[str(price)],
+                          start_p=3,
+                          start_q=3,
+                          test='adf',
+                          max_p=15, 
+                          max_q=15,
+                          trace=True,
+                          error_action='ignore',  
+                          suppress_warnings=True,
+                          stepwise = True)
+    # difference df by d found by auto arima
+    differenced_by_auto_arima = data[str(price)].diff(model.order[1])
+    return model.order, differenced_by_auto_arima, model.resid()
+
+# 09- Forecasting futures values with ARIMA Model and plotting them alongside the real observed values 
+
+
+
+def model(data, price,n, p,d,q):
+    """
+    Inputs :
+
+        n : The number of future values we want to predict 
+        
+        p_d_q : Orders of the ARIMA model
+
+    """
+    
+    time_series = np.log(data[str(price)])
+
+    # fit
+
+    model = statsmodels.tsa.arima.model.ARIMA(time_series, order = (p,d,q))
+    fitted = model.fit()
+    fc = fitted.get_forecast(n) 
+
+    #Set confidence to 95% 
+
+    fc = (fc.summary_frame(alpha=0.05))
+
+    #Get average ARIMA forecast
+
+    fc_mean = fc['mean']
+
+    #Get the extremity of confidence forecast interval
+
+    fc_lower = fc['mean_ci_lower']
+    fc_upper = fc['mean_ci_upper'] 
+
+    #Plot last 30 price movements
+
+    plt.figure(figsize=(12,8), dpi=100)
+    plt.plot(data['datetime'][-30:],data[str(price)][-30:], label='BTC Price')
+
+    # create date axis for predictions
+
+    future =  [str(datetime.datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=x)) for x in range(n)]
+
+    #Plot mean forecast
+
+    plt.plot(future, np.exp(fc_mean), label='Average ARIMA value', linewidth = 1.5) 
+
+    #Create confidence interval
+
+    plt.fill_between(future, np.exp(fc_lower),np.exp(fc_upper), color='b', alpha=.15, label = '95% Confidence')
+
+    #Loading and plotting the real future values
+
+    real = load_data(symbol, end_date, future[len(future)-1], interval)
+    real["close"] = np.log(real["close"])
+    plt.plot(future, real["close"])
+
+  
+
+    plt.title(f"Bitcoin {n} Day Forecast")
+    plt.legend(loc='upper left', fontsize=8)
+    plt.show()
+
+
+# 10- Plot comparing time series and its moving statistics#
+
+def stationnarity_fast_check(data, price, period) : 
+
+
+    rolling_mean = data[str(price)].rolling(window=period).mean()
+    rolling_std = data[str(price)].rolling(window=period).std()
+    
+    original = plt.plot(data[str(price)], color='blue', label= str(price) + 'cotation')
+    mean = plt.plot(rolling_mean, color='red', label='Rolling mean')
+    std = plt.plot(rolling_std, color='black', label='Rolling standard deviation')
+    plt.legend(loc='best')
+    plt.title('Rolling mean/standard deviation')
+    plt.show(block=False)
+
+
