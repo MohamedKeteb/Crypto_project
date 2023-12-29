@@ -22,7 +22,7 @@ from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss 
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-import statsmodels.api as sm
+import statsmodels
 import pmdarima as pm
 import datetime
 
@@ -671,21 +671,34 @@ def auto_arima(data, price):
 
 
 
-def model(data, price,n, p,d,q):
+def model(data, price,n, start_from, symbol, interval, p,d,q):
     """
     Inputs :
+        start_from : The moment from which we should start to predict
 
         n : The number of future values we want to predict 
         
         p_d_q : Orders of the ARIMA model
 
     """
+    # create date axis for predictions
+
+    future =  [str(datetime.datetime.strptime(str(start_from), "%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=x)) for x in range(n)]
+
+    f = [str(datetime.datetime.strptime(str(start_from), "%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=x)) for x in range(-15,n)]
     
+    #Loading the real future values
+
+    real = load_data(str(symbol),str(start_from), future[len(future)-1], str(interval))
+    real["close"] = np.log(real["close"])
+
     time_series = np.log(data[str(price)])
 
     # fit
 
-    model = sm.tsa.arima.model.ARIMA(time_series, order = (p,d,q))
+    model = statsmodels.tsa.arima.model.ARIMA(time_series, order = (p,d,q), 
+                                                enforce_invertibility= False,
+                                                enforce_stationarity= False)
     fitted = model.fit()
     fc = fitted.get_forecast(n) 
 
@@ -707,26 +720,23 @@ def model(data, price,n, p,d,q):
     plt.figure(figsize=(12,8), dpi=100)
     plt.plot(data['datetime'][-15:],data[str(price)][-15:], label='BTC Price')
 
-    # create date axis for predictions
-
-    future =  [str(datetime.datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=x)) for x in range(n)]
-
     #Plot mean forecast
 
-    plt.plot(future, np.exp(fc_mean), label='Average ARIMA value', linewidth = 1.5) 
+    plt.plot(future, np.exp(fc_mean), label='Average ARIMA value', linewidth = 1.5, linestyle = 'dashdot') 
 
     #Create confidence interval
 
     plt.fill_between(future, np.exp(fc_lower),np.exp(fc_upper), color='b', alpha=.15, label = '95% Confidence')
 
-    #Loading and plotting the real future values
+    # Plotting the real future values
 
-    real = load_data(symbol, end_date, future[len(future)-1], interval)
-    real["close"] = np.log(real["close"])
-    plt.plot(future, real["close"])
+    plt.plot(future, real["close"], label = "Real values")
   
 
     plt.title(f"Bitcoin {n} Day Forecast")
+    ax = plt.gca()
+    ax.axes.xaxis.set_ticklabels(f)
+    plt.xticks(rotation = 90)
     plt.legend(loc='upper left', fontsize=8)
     plt.show()
 
