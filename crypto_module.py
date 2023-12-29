@@ -685,7 +685,7 @@ def model(data, price,n, p,d,q):
 
     # fit
 
-    model = statsmodels.tsa.arima.model.ARIMA(time_series, order = (p,d,q))
+    model = sm.tsa.arima.model.ARIMA(time_series, order = (p,d,q))
     fitted = model.fit()
     fc = fitted.get_forecast(n) 
 

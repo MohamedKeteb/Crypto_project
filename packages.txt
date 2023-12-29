@@ -1,0 +1,12 @@
+pandas
+ta
+numpy
+matplotlib
+plotly
+seaborn
+requests
+scikit-learn
+tensorflow
+statsmodels  
+pmdarima
+datetime
