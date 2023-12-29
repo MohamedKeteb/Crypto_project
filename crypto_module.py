@@ -89,13 +89,13 @@ def visualize_data(data, symbol, interval):
     Output : Plot
 
     '''
-        sns.set(style = 'darkgrid')
-        plt.title('Close cotation of '+ str(symbol))
-        plt.xlabel(str(interval))
-        plt.ylabel('USD')
-        sns.lineplot(x = data.index, y = data['close'], color = 'green')
+    sns.set(style = 'darkgrid')
+    plt.title('Close cotation of '+ str(symbol))
+    plt.xlabel(str(interval))
+    plt.ylabel('USD')
+    sns.lineplot(x = data.index, y = data['close'], color = 'green')
        
-        plt.show()
+    plt.show()
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -482,7 +482,8 @@ def inverse_scalling(x, data):
 
 def add_arima_indicators(data, price, period, ln = False) : 
 
-""" Inputs : 
+
+    """ Inputs : 
 
         price : str = the price we aim to predict (close, high...)
 
@@ -490,10 +491,10 @@ def add_arima_indicators(data, price, period, ln = False) :
 
         ln : Boolean, to transform or not the value by applying log 
  
-"""    
+    """    
     
     if ln == True :
-    
+
         for i in data.columns[1:] :
 
             data[str(i)] = np.log(data[str(i)])
@@ -701,10 +702,10 @@ def model(data, price,n, p,d,q):
     fc_lower = fc['mean_ci_lower']
     fc_upper = fc['mean_ci_upper'] 
 
-    #Plot last 30 price movements
+    #Plot last 15 price movements
 
     plt.figure(figsize=(12,8), dpi=100)
-    plt.plot(data['datetime'][-30:],data[str(price)][-30:], label='BTC Price')
+    plt.plot(data['datetime'][-15:],data[str(price)][-15:], label='BTC Price')
 
     # create date axis for predictions
 
@@ -723,7 +724,6 @@ def model(data, price,n, p,d,q):
     real = load_data(symbol, end_date, future[len(future)-1], interval)
     real["close"] = np.log(real["close"])
     plt.plot(future, real["close"])
-
   
 
     plt.title(f"Bitcoin {n} Day Forecast")
