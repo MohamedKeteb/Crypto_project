@@ -27,26 +27,31 @@ such as linear regression, SVR, LSTM, and ARIMA, to obtain stock price predictio
 
 Required modules and packages to run all the files :
 
-- in $\texttt{crypto_module.py}$ :
+- in $\texttt{crypto\_module.py}$ :
     
     ```
+    matplotlib
     numpy
     seaborn
     pandas
-    
-     
+    requests
+    ta
+    plotly
+    sklearn
+    tensorflow
+    statsmodels
+    pmdarima
+    datetime
     
     ```
 
+- in $\texttt{crypto\_module.py}$ :
+  
+    ```
+    streamlit
+    time
+    from PIL import Image
 
-
-
-
-
-
-
-
-
-
+    ```
 
 - To run the app use the command : $\texttt{streamlit run app.py}$
