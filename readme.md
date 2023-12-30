@@ -15,7 +15,7 @@ such as linear regression, SVR, LSTM, and ARIMA, to obtain stock price predictio
 
 ### The plan of the project
 
-- I. Data extraction using an API from Twelve Data sets, representing 800 requests per day
+- I. Data extraction using an API from Twelve Data, allows 800 requests per day
 - II. Work on data and enrich data by adding variables relevant to financial series 
 - III. Use of machine learning models, models used :
   - linear regression 
