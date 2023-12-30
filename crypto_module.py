@@ -560,7 +560,18 @@ def lstm_model(X, y):
 def recursive_prediction(X,y, t):
 
  
-    
+    """
+
+    Aim : Predict the future prices with LSTM model 
+    we predict the next value and we give it to the model for forcasting the next value recursively
+
+    Input : 
+    X, y : type numpy array of the prices X the history and y the price we want to learn the model with 
+    t : type int number of periods we want to predict 
+
+    Output : type list wich contains the realised prices and the future prices at the end of the list
+
+    """
     
     model = Sequential([
     LSTM(50, return_sequences=True, input_shape=(X.shape[1], 1)), # LSTM layer with 50 units and return sequences
@@ -588,7 +599,20 @@ def recursive_prediction(X,y, t):
     
 def inverse_scalling(x, data):
 
-  
+
+
+    """
+
+    Aim : Inverse scale the data to find the original format of the data after prediction
+
+    Input : 
+    x : type numpy array which contains the data to inverse scale 
+    data : pandas DataFrame the original data with unscaled values 
+
+    Output : numpy array with the unscaled values
+
+    """
+
     
     y = pd.DataFrame(x)
     inv_scale  = lambda z : z * (data['high'].max() - data['low'].min()) + data['low'].min()
@@ -615,7 +639,19 @@ def inverse_scalling(x, data):
 
 def add_arima_indicators(data, price, period, ln = False) : 
 
+    """
 
+
+    Inputs : 
+
+        price : str = the price we aim to predict (close, high...)
+
+        period : the length of the rolling window used to compute rolling statistics from the price we defined
+
+        ln : Boolean, to transform or not the value by applying log
+
+
+    """
     
     if ln == True :
 
@@ -671,6 +707,20 @@ def arima_viz_with_indicator(data, symbol, interval) :
 # 03- To compute ADF and KPSS test for stationnarity
 
 def adf_test(data, price, to_print = True) : 
+
+
+    """
+
+
+
+
+     Inputs : 
+            to_print : Boolean allowing us wether to print the results of test for commentary purposes or just 
+                       assigning them to variables for computationnal purposes
+
+
+
+    """
    
     result = adfuller(data[str(price)])
     adf_stat = result[0]
@@ -792,6 +842,20 @@ def auto_arima(data, price):
 
 
 def model(data, price,n, start_from, symbol, interval, p,d,q):
+
+    """
+
+
+     Inputs :
+        start_from : The moment from which we should start to predict
+
+        n : The number of future values we want to predict 
+        
+        p_d_q : Orders of the ARIMA model
+
+
+    """
+    
 
     # create date axis for predictions
 
