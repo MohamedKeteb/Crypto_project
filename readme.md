@@ -1,6 +1,6 @@
 # Python_ENSAE_2A
 
-Second-year Python project 2023-2024 for **the Python for Data Science course** by Elvis, Mohamed and Aziz.
+Second-year Python project 2023-2024 for **the Python for Data Science course** by Elvis GABA-KPAYEDO, Mohamed Keteb and Aziz Bchir.
 
 The objective of this project was to see how machine learning models behave when faced with a complicated prediction problem. 
 So we ventured into time series prediction with our second-year knowledge, which is of course insufficient.
