@@ -29,6 +29,29 @@ import datetime
 # This function loads Bitcoin data from an API.
 def load_data(symbol, start_date, end_date, interval):
 
+    """
+    Aim : Load the data from the API 
+
+    Input :
+    - symbol :
+        type: string
+        for instance 'BTC/USD'
+    - start_date : 
+        type : string 
+        format : "%Y-%m-%d 00:00:00"
+    - end_data :
+        type : string
+        format : "%Y-%m-%d 00:00:00"
+    - interval : 
+        trype : string 
+        e.g '1day',  '1h'
+    
+    output : 
+        data
+        type : Pandas DataFrame
+    
+
+    """
 
 
     api_key = 'de6ee984b4c24a0c9c7a43d7dca8b75e' # The Api key of Twelvedata.com (800 requests per day)
@@ -49,6 +72,25 @@ def load_data(symbol, start_date, end_date, interval):
 
 
 def visualize_data(data, symbol, interval):
+    """
+
+    Aim : Visualize the close cotation of  the considered Cryptocurrencie on the considered interval
+    
+    Input : 
+    - data :
+        type: pandas DataFrame 
+                
+    - symbol :
+        type: string
+        for instance 'BTC/USD'
+        
+    - interval : 
+        type: string
+        for instance '1day' or '5min'
+        
+    Output : Plot
+
+    """
  
     sns.set(style = 'darkgrid')
     plt.title('Close cotation of '+ str(symbol))
@@ -61,6 +103,27 @@ def visualize_data(data, symbol, interval):
 #-----------------------------------------------------------------------------------------------------------
 
 def finance_visualize(data, symbol, interval):
+
+    """
+
+    Aim : Visualize the candle of the market of the considered Cryptocurrencie
+    on the considered interval
+    
+    Input : 
+    - data :
+        type: pandas DataFrame 
+                
+    - symbol :
+        type: string
+        for instance 'BTC/USD'
+        
+    - interval : 
+        type: string
+        for instance '1day' or '5min'
+        
+    Output : Plot
+    
+    """
 
     # Creating a candlestick chart using Plotly.
     fig = go.Figure(data=[go.Candlestick(x=data['datetime'],
@@ -82,6 +145,32 @@ def finance_visualize(data, symbol, interval):
 
 
 def visualize_with_indicator(data, symbol, interval, indicator):
+
+    """
+
+    Aim : Visualize the candle of the market of the considered Cryptocurrencie
+    on the considered interval
+    
+    Input : 
+    - data :
+        type: pandas DataFrame 
+                
+    - symbol :
+        type: string
+        for instance 'BTC/USD'
+        
+    - interval : 
+        type: string
+        for instance '1day' or '5min'
+    - indicator :
+        type: string
+        RSI EMA ATR
+        
+    Output : Plot
+    
+
+
+    """
  
     
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=['Candles', str(indicator)])
@@ -113,7 +202,13 @@ def visualize_with_indicator(data, symbol, interval, indicator):
 # This function adds technical indicators to the given bitcoin data. 
 def add_indicators(data, period=14):
 
+    """
+    input :
+    data : type pandas DataFrame 
 
+    output : a pandas DataFrame wich contain the three indicators 
+    
+    """
     
     ema = ta.trend.ema_indicator(close = data['close'], window = period).dropna()
     rsi = ta.momentum.rsi(close=data['close'], window=period).dropna()
@@ -131,8 +226,21 @@ def add_indicators(data, period=14):
     return data.reset_index().drop('index', axis=1)
 
 #------------------------------------------------------------------------------------------------------
+
+
+
 def scaling_data(data):
 
+    """
+
+    aim : Scale the data frma with MinMax scaler to apply machine learning models 
+
+    input : 
+    data : type pandas DataFrame
+
+    output : scaled DataFrame
+
+    """
 
 
 
