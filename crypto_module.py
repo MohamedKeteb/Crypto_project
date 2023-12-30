@@ -429,7 +429,17 @@ def apply_svr(scaled_data, prediction_time, price, target, regressor, best_C, be
 
 def cross_validation_parameter(param_grid, price_train, target_train):
 
+    """
     
+    Aim : Find the best parameters C and Gamma by Cross Validation 
+
+    Input : 
+    param_grid : type dictioary which contains the values of gamme and C we want to test 
+    price_train and target_train : numpy array
+
+    output : Gives the Best C and the Best Gamma among the value of param_grid
+    
+    """
 
     svr_rbf = SVR(kernel = 'rbf') # We use the Support Vector Regression
     search = GridSearchCV(svr_rbf, param_grid, cv=3, scoring = 'neg_mean_squared_error', n_jobs=-1)
@@ -450,6 +460,18 @@ def cross_validation_parameter(param_grid, price_train, target_train):
 
 # Function to create sequences for training the model
 def create_sequences(scaled_data, sequence_length):
+
+    """
+    Aim : we want to change the format of the data to have an array of list of length sequence_length
+    and another array of the shifted values which are the price we want to predict 
+
+    Input : 
+    scaled_data : type pandas DataFrame
+    sequence_length : type int wich is the length of the slice
+
+    Output : Two numpy arrays
+
+    """
 
    
     xs, ys = [], []
@@ -498,6 +520,18 @@ def visualize_RNN_prediction(y_train, y_test,predicted_values):
 #--------------------------------------------------------------------------------------------------------------------------------
 
 def lstm_model(X, y):
+
+    """
+
+    Input : 
+    X, y : type numpy array X is teh realised prices and y the prices we want to learn the model with 
+
+    Output : 
+    y_train, y_test : numpy array jsut in order to plot the them to compare properly 
+    predicted_values : numpy array the prediction of the model on the test set
+
+    
+    """
 
   
     
