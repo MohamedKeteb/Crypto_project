@@ -283,6 +283,21 @@ def scaling_data(data):
 #-----------------------------------------------------------------------------------------------------------
 
 def data_preprocess(scaled_data,regressor, prediction_time):
+
+    """  
+    Aim : Shift the data to do regression on time series 
+    for example, if you want to predict the next 30 days by changing the data, 
+    each line of price is associated with the value taken 30 days later.
+
+    Input:
+    - scaled_data   type : DataFrame
+    - prediction_time   type : int
+
+    Output:w
+    - price Type : Numpy Array 
+    - target Type : Numpy Array
+    
+    """
    
     target = scaled_data['close'].shift(-prediction_time).dropna()
     target = np.array(target).reshape(-1, 1)
@@ -310,6 +325,22 @@ def visualize_model(prediction_matrix,scaled_data, zoom = None):
 #-----------------------------------------------------------------------------------------------------------------
     
 def apply_linear_regression(scaled_data, prediction_time, price, target, regressor):
+
+    """
+
+    Input : 
+    scaled_data : type pandas DataFrame wich contains the scaled data 
+    prediction_time : type int, if prediction_time = 5 we predict the 5th next value 
+    price : type numpy array
+    target : numpy array 
+    regressor : type list of strings 
+
+    output : 
+    prediction_matrix : type pandas DataFrame wich containts the realised price ans the predictions 
+    future : type numpy array which contains the prediction_time future parice form the last date of the data set 
+    r2 : type float it's the well known R2 of the linear regression
+
+    """
 
 
 
@@ -354,6 +385,23 @@ def visualize_future(scaled_data, future, zoom = None):
 
 
 def apply_svr(scaled_data, prediction_time, price, target, regressor, best_C, best_gamma):
+
+    """
+
+    Input : 
+    scaled_data : type pandas DataFrame wich contains the scaled data 
+    prediction_time : type int, if prediction_time = 5 we predict the 5th next value 
+    price : type numpy array
+    target : numpy array 
+    regressor : type list of strings 
+    best_C and best_gamma : type float wich are parameters of the SVR model 
+
+    output : 
+    prediction_matrix : type pandas DataFrame wich containts the realised price ans the predictions 
+    future : type numpy array which contains the prediction_time future parice form the last date of the data set 
+    svr_accuracy : type float it measures the accuracy or how well the model fit the data
+    
+    """
 
 
    
